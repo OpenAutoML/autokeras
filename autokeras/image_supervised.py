@@ -82,7 +82,21 @@ def read_images(img_file_names, images_dir_path):
                 raise ValueError("%s image does not exist" % img_file)
     else:
         raise ValueError("Directory containing images does not exist")
-    return np.asanyarray(x_train)
+
+    def fix_dimension(x: np.array):
+        """
+        Images may have a single or three color channels. np.asanyarray will fail when passing array
+        of different shapes, so we will "convert" grey images to colored images (3 channels)
+
+        :param x:
+        :return:
+        """
+        height, width, depth = x.shape
+        if depth == 1:
+            return np.repeat(x, 3).reshape(height, width, -1)
+        return x
+
+    return np.asanyarray([fix_dimension(x) for x in x_train])
 
 
 def load_image_dataset(csv_file_path, images_path):
